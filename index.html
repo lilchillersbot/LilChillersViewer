@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lil Chillers Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #111;
+      color: white;
+    }
+
+    .container {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      justify-items: center;
+    }
+
+    .nft-card {
+      position: relative;
+      width: 100%;
+    }
+
+    .nft-image {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .nft-image:hover {
+      transform: scale(1.05);
+    }
+
+    .nft-id {
+      position: absolute;
+      bottom: 6px;
+      right: 8px;
+      background-color: rgba(0,0,0,0.6);
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+    }
+
+    .modal img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 12px;
+    }
+
+    .loading-text {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="gallery"></div>
+
+  <div class="modal" id="modal">
+    <div class="loading-text" id="loadingText">Loading hi-res image...</div>
+    <img id="modal-img" src="" alt="Large NFT" style="display:none;" />
+  </div>
+
+  <script>
+    const imageURLs = Array.from({length: 3333}, (_, i) => {
+      const id = i;
+      return {
+        id,
+        thumb: `https://prod-image-cdn.tensor.trade/images/slug=2a2a253f-3aea-42ac-a0f1-a0dbf285f25e/400x400/freeze=false/https%3A%2F%2Fap-assets.pinit.io%2FAVbqkmzqKKxvSgLwVhwedUC3zFMZuAZCJbb51F3zVGRW%2Ffc37c2b2-7667-4d3b-945f-9b27a7b3fcbd%2F${id}`,
+        full: `https://ap-assets.pinit.io/AVbqkmzqKKxvSgLwVhwedUC3zFMZuAZCJbb51F3zVGRW/fc37c2b2-7667-4d3b-945f-9b27a7b3fcbd/${id}`
+      };
+    });
+
+    const gallery = document.getElementById('gallery');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const loadingText = document.getElementById('loadingText');
+
+    const perPage = 100;
+    let currentPage = 0;
+    let loading = false;
+
+    function loadImages() {
+      if (loading) return;
+      loading = true;
+
+      const start = currentPage * perPage;
+      const end = start + perPage;
+      const urls = imageURLs.slice(start, end);
+
+      urls.forEach(({ id, thumb, full }) => {
+        const card = document.createElement('div');
+        card.className = 'nft-card';
+
+        const img = document.createElement('img');
+        img.src = thumb;
+        img.className = 'nft-image';
+        img.loading = 'lazy';
+        img.onclick = () => {
+          modal.style.display = 'flex';
+          modalImg.style.display = 'none';
+          loadingText.style.display = 'block';
+          modalImg.src = full;
+        };
+
+        const label = document.createElement('div');
+        label.className = 'nft-id';
+        label.innerText = `#${id}`;
+
+        card.appendChild(img);
+        card.appendChild(label);
+        gallery.appendChild(card);
+      });
+
+      currentPage++;
+      loading = false;
+    }
+
+    modalImg.onload = () => {
+      loadingText.style.display = 'none';
+      modalImg.style.display = 'block';
+    };
+
+    modal.onclick = () => {
+      modal.style.display = 'none';
+      modalImg.src = '';
+    };
+
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        if (currentPage * perPage < imageURLs.length) {
+          loadImages();
+        }
+      }
+    });
+f
+    loadImages();
+  </script>
+</body>
+</html>
