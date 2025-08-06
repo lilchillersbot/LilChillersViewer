@@ -83,8 +83,7 @@
   </div>
 
   <script>
-    // deploy github page
-    const imageURLs = Array.from({length: 3333}, (_, i) => {
+    const imageURLs = Array.from({ length: 3333 }, (_, i) => {
       const id = i;
       return {
         id,
@@ -136,6 +135,12 @@
 
       currentPage++;
       loading = false;
+
+      setTimeout(() => {
+        if (document.body.scrollHeight <= window.innerHeight && currentPage * perPage < imageURLs.length) {
+          loadImages();
+        }
+      }, 100);
     }
 
     modalImg.onload = () => {
